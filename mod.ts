@@ -39,6 +39,7 @@ export class EasyPath {
     return this;
   }
   copySync(opt: CopyOption): EasyPath {
+    console.log(`copySync:${opt}`);
     return this;
   }
   touch(): EasyPath {

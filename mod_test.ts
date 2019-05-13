@@ -21,21 +21,18 @@ async function wipeTestEnv(): Promise<void> {
   await setupTestEnv();
 }
 
-// test({
-//   name: "ls",
-//   async fn() {
-//     const d = await new Path(testRootPath)
-//       .join("sub1")
-//       .join("sub2")
-//       .join("sub3")
-//       .join("sub4")
-//       .join("sub5")
-//       .mkdir();
-//     const ls = await new Path(testRootPath).ls();
-//     console.log(ls);
-//     // await wipeTestEnv();
-//   }
-// });
+test({
+  name: "ls",
+  async fn(): Promise<void> {
+    await setupTestEnv();
+    const e = new TextEncoder();
+    Deno.writeFileSync(join(testRootPath, "foo.ts"), e.encode(""));
+    Deno.writeFileSync(join(testRootPath, "bar.ts"), e.encode(""));
+    const ls = await new EasyPath(testRootPath).ls();
+    assertEquals(ls, ["./test_data/bar.ts", "./test_data/foo.ts"]);
+    await wipeTestEnv();
+  }
+});
 
 test({
   name: "Exec",
@@ -89,34 +86,35 @@ test({
   }
 });
 
-test({
-  name: "chmod",
-  async fn(): Promise<void> {
-    await setupTestEnv();
-    await new EasyPath(testRootPath).join("foo.ts").touch();
-    await new EasyPath(testRootPath).join("foo.ts").chmod(0o755);
-    if (isNotWindows) {
+if (isNotWindows) {
+  test({
+    name: "chmod",
+    async fn(): Promise<void> {
+      await setupTestEnv();
+      const e = new TextEncoder();
+      Deno.writeFileSync(join(testRootPath, "foo.ts"), e.encode(""));
+      await new EasyPath(testRootPath).join("foo.ts").chmod(0o755);
       const fileInfo = Deno.statSync(
         new EasyPath(testRootPath).join("foo.ts").toString()
       );
       assertEquals(fileInfo.mode & 0o755, 0o755);
+      await new EasyPath(testRootPath).join("foo.ts").chmod(0o644);
+      if (isNotWindows) {
+        const fileInfo = Deno.statSync(
+          new EasyPath(testRootPath).join("foo.ts").toString()
+        );
+        assertEquals(fileInfo.mode & 0o644, 0o644);
+      }
+      await new EasyPath(testRootPath).join("foo.ts").chmod(0o666);
+      if (isNotWindows) {
+        const fileInfo = Deno.statSync(
+          new EasyPath(testRootPath).join("foo.ts").toString()
+        );
+        assertEquals(fileInfo.mode & 0o666, 0o666);
+      }
+      await wipeTestEnv();
     }
-    await new EasyPath(testRootPath).join("foo.ts").chmod(0o644);
-    if (isNotWindows) {
-      const fileInfo = Deno.statSync(
-        new EasyPath(testRootPath).join("foo.ts").toString()
-      );
-      assertEquals(fileInfo.mode & 0o644, 0o644);
-    }
-    await new EasyPath(testRootPath).join("foo.ts").chmod(0o666);
-    if (isNotWindows) {
-      const fileInfo = Deno.statSync(
-        new EasyPath(testRootPath).join("foo.ts").toString()
-      );
-      assertEquals(fileInfo.mode & 0o666, 0o666);
-    }
-    await wipeTestEnv();
-  }
-});
+  });
+}
 
 runIfMain(import.meta);
