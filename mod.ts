@@ -26,17 +26,17 @@ export class Path {
     return this;
   }
   async copy(opt: CopyOption): Promise<Path> {
-    console.log("copy");
+    console.log(`copy:${opt}`);
     return this;
   }
   async touch(): Promise<Path> {
     await Deno.writeFile(this.path, this.encoder.encode(""));
     return this;
   }
-  async chmod(mode:number): Promise<void> {
-    await Deno.chmod(this.path,mode);
+  async chmod(mode: number): Promise<void> {
+    await Deno.chmod(this.path, mode);
   }
-  async ls() {
+  async ls(): Promise<string[]> {
     const arr = [];
     for await (const f of walk(this.path)) {
       arr.push(f.path.replace(/\\/g, "/"));

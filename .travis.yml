@@ -11,4 +11,4 @@ before_script:
 script:
   - prettier -c "./**/*.ts"
   - eslint **/*.ts --max-warnings=0
-  - deno -A _test.ts
+  - deno run --allow-write --allow-read _test.ts

@@ -7,11 +7,17 @@ import { Path } from "./mod.ts";
 
 const testRootPath = "./test_data";
 
-async function wipeTestEnv() {
+async function setupTestEnv(): Promise<void> {
+  if (!(await exists(testRootPath))) {
+    await Deno.mkdir(testRootPath);
+  }
+}
+
+async function wipeTestEnv(): Promise<void> {
   if (await exists(testRootPath)) {
     await Deno.remove(testRootPath, { recursive: true });
   }
-  await Deno.mkdir(testRootPath);
+  await setupTestEnv();
 }
 
 // test({
@@ -32,7 +38,8 @@ async function wipeTestEnv() {
 
 test({
   name: "Join",
-  async fn() {
+  async fn(): Promise<void> {
+    await setupTestEnv();
     const d = await new Path(testRootPath)
       .join("sub1")
       .join("sub2")
@@ -43,14 +50,15 @@ test({
       d.toString(),
       join(testRootPath, "sub1", "sub2", "sub3", "sub4", "sub5")
     );
-    // await wipeTestEnv();
   }
 });
 
 test({
   name: "Touch",
-  async fn() {
-    const d = await new Path(testRootPath).join("foo.ts").touch();
+  async fn(): Promise<void> {
+    await setupTestEnv();
+
+    await new Path(testRootPath).join("foo.ts").touch();
     assert(await exists(join(testRootPath, "foo.ts")));
     await wipeTestEnv();
   }
