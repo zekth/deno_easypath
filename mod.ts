@@ -5,13 +5,16 @@ export interface CopyOption {
   to?: string;
   into?: string;
 }
-export class Path {
+
+export class EasyPath {
   private path: string;
-  private queue: Promise<void>[];
+  private queue: Array<Promise<void>>;
   private encoder: TextEncoder = new TextEncoder();
-  static home = new Path("~");
-  static root = new Path("/");
-  constructor(path: string) {
+
+  static home = new EasyPath("~");
+  static root = new EasyPath("/");
+
+  constructor(path: string = "./") {
     this.path = path;
     this.queue = [];
     return this;
@@ -19,24 +22,39 @@ export class Path {
   public toString(): string {
     return this.path;
   }
-  mkdir(): Path {
+  mkdir(): EasyPath {
     this.queue.push(Deno.mkdir(this.path, true));
     return this;
   }
-  join(path: string): Path {
+  mkdirSync(): EasyPath {
+    Deno.mkdirSync(this.path, true);
+    return this;
+  }
+  join(path: string): EasyPath {
     this.path = join(this.path, path);
     return this;
   }
-  copy(opt: CopyOption): Path {
+  copy(opt: CopyOption): EasyPath {
     console.log(`copy:${opt}`);
     return this;
   }
-  touch(): Path {
+  copySync(opt: CopyOption): EasyPath {
+    return this;
+  }
+  touch(): EasyPath {
     this.queue.push(Deno.writeFile(this.path, this.encoder.encode("")));
     return this;
   }
-  chmod(mode: number): Path {
+  touchSync(): EasyPath {
+    Deno.writeFileSync(this.path, this.encoder.encode(""));
+    return this;
+  }
+  chmod(mode: number): EasyPath {
     this.queue.push(Deno.chmod(this.path, mode));
+    return this;
+  }
+  chmodSync(mode: number): EasyPath {
+    Deno.chmodSync(this.path, mode);
     return this;
   }
   async ls(): Promise<string[]> {
