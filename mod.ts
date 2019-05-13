@@ -7,34 +7,37 @@ export interface CopyOption {
 }
 export class Path {
   private path: string;
+  private queue: Promise<void>[];
   private encoder: TextEncoder = new TextEncoder();
   static home = new Path("~");
   static root = new Path("/");
   constructor(path: string) {
     this.path = path;
+    this.queue = [];
     return this;
   }
   public toString(): string {
     return this.path;
   }
-  async mkdir(): Promise<Path> {
-    await Deno.mkdir(this.path, true);
+  mkdir(): Path {
+    this.queue.push(Deno.mkdir(this.path, true));
     return this;
   }
   join(path: string): Path {
     this.path = join(this.path, path);
     return this;
   }
-  async copy(opt: CopyOption): Promise<Path> {
+  copy(opt: CopyOption): Path {
     console.log(`copy:${opt}`);
     return this;
   }
-  async touch(): Promise<Path> {
-    await Deno.writeFile(this.path, this.encoder.encode(""));
+  touch(): Path {
+    this.queue.push(Deno.writeFile(this.path, this.encoder.encode("")));
     return this;
   }
-  async chmod(mode: number): Promise<void> {
-    await Deno.chmod(this.path, mode);
+  chmod(mode: number): Path {
+    this.queue.push(Deno.chmod(this.path, mode));
+    return this;
   }
   async ls(): Promise<string[]> {
     const arr = [];
@@ -43,5 +46,11 @@ export class Path {
     }
     arr.sort();
     return arr;
+  }
+  async exec(): Promise<void> {
+    for (const p in this.queue) {
+      await p;
+    }
+    this.queue = [];
   }
 }
