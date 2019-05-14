@@ -15,7 +15,7 @@ new EasyPath()
   .touch()
   .execSync(); // create ./bar.ts Synchronously
 
-const e = new EasyPath({ path: "./", async: true }).join("bar.ts").touch();
+const e = new EasyPath().join("bar.ts").touch();
 await e.exec(); // create ./bar.ts Asynchronously
 
 // you can also chain actions
