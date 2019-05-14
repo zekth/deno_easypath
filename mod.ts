@@ -5,22 +5,35 @@ export interface CopyOption {
   to?: string;
   into?: string;
 }
+
 export interface EasyPathOpt {
   path: string;
   async?: boolean;
 }
+
+enum ops {
+  copy,
+  mkdir,
+  touch,
+  chmod
+}
+
+export interface Op {
+  name: ops;
+  path: string;
+  args?: Record<string, any>;
+}
+
 export class EasyPath {
   private path: string;
-  private async: boolean;
-  private queue: Array<Promise<void>>;
+  private queue: Array<Op>;
   private encoder: TextEncoder = new TextEncoder();
 
-  static home = new EasyPath({ path: "~" });
-  static root = new EasyPath({ path: "/" });
+  static home = new EasyPath("~");
+  static root = new EasyPath("/");
 
-  constructor(opt: EasyPathOpt = { path: "./", async: false }) {
-    this.path = opt.path;
-    this.async = !!opt.async;
+  constructor(path: string = "./") {
+    this.path = path;
     this.queue = [];
     return this;
   }
@@ -30,11 +43,7 @@ export class EasyPath {
   }
 
   mkdir(): EasyPath {
-    if (this.async) {
-      this.queue.push(Deno.mkdir(this.path, true));
-    } else {
-      Deno.mkdirSync(this.path, true);
-    }
+    this.queue.push({ name: ops.mkdir, path: this.path });
     return this;
   }
 
@@ -44,29 +53,17 @@ export class EasyPath {
   }
 
   copy(opt: CopyOption): EasyPath {
-    if (this.async) {
-      console.log(`copy:${opt}`);
-    } else {
-      console.log(`copySync:${opt}`);
-    }
+    this.queue.push({ name: ops.copy, path: this.path });
     return this;
   }
 
   touch(): EasyPath {
-    if (this.async) {
-      this.queue.push(Deno.writeFile(this.path, this.encoder.encode("")));
-    } else {
-      Deno.writeFileSync(this.path, this.encoder.encode(""));
-    }
+    this.queue.push({ name: ops.touch, path: this.path });
     return this;
   }
 
   chmod(mode: number): EasyPath {
-    if (this.async) {
-      this.queue.push(Deno.chmod(this.path, mode));
-    } else {
-      Deno.chmodSync(this.path, mode);
-    }
+    this.queue.push({ name: ops.chmod, path: this.path, args: { mode: mode } });
     return this;
   }
 
@@ -79,8 +76,41 @@ export class EasyPath {
     return arr;
   }
 
+  execSync(): void {
+    for (const o of this.queue) {
+      switch (o.name) {
+        case ops.chmod:
+          Deno.chmodSync(o.path, o.args.mode);
+          break;
+        case ops.mkdir:
+          Deno.mkdirSync(o.path, true);
+          break;
+        case ops.copy:
+          break;
+        case ops.touch:
+          Deno.writeFileSync(o.path, this.encoder.encode(""));
+          break;
+      }
+    }
+    this.queue = [];
+  }
+
   async exec(): Promise<void> {
-    for (const p in this.queue) {
+    for (const o of this.queue) {
+      let p;
+      switch (o.name) {
+        case ops.chmod:
+          p = Deno.chmod(o.path, o.args.mode);
+          break;
+        case ops.mkdir:
+          p = Deno.mkdir(o.path, true);
+          break;
+        case ops.copy:
+          break;
+        case ops.touch:
+          p = Deno.writeFile(o.path, this.encoder.encode(""));
+          break;
+      }
       await p;
     }
     this.queue = [];

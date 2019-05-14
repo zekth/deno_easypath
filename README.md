@@ -10,19 +10,23 @@ new EasyPath()
   .join("bar.ts")
   .toString(); // output foo/bar.ts
 
-new EasyPath().join("bar.ts").touch(); // create ./bar.ts Synchronously
+new EasyPath()
+  .join("bar.ts")
+  .touch()
+  .execSync(); // create ./bar.ts Synchronously
 
 const e = new EasyPath({ path: "./", async: true }).join("bar.ts").touch();
-e.exec(); // create ./bar.ts Asynchronously
+await e.exec(); // create ./bar.ts Asynchronously
 
 // you can also chain actions
 new EasyPath()
   .join("subFolder")
   .mkdir()
   .join("foo.ts")
-  .touch(); // create ./subFolder/bar.ts Synchronously
+  .touch()
+  .execSync(); // create ./subFolder/bar.ts Synchronously
 
-const e = new EasyPath({ path: "./", async: true })
+const e = new EasyPath()
   .join("subFolder")
   .mkdir()
   .join("foo.ts")
