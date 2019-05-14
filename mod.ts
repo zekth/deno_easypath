@@ -5,19 +5,22 @@ export interface CopyOption {
   to?: string;
   into?: string;
 }
-
+export interface EasyPathOpt {
+  path: string;
+  async?: boolean;
+}
 export class EasyPath {
   private path: string;
   private async: boolean;
   private queue: Array<Promise<void>>;
   private encoder: TextEncoder = new TextEncoder();
 
-  static home = new EasyPath("~");
-  static root = new EasyPath("/");
+  static home = new EasyPath({ path: "~" });
+  static root = new EasyPath({ path: "/" });
 
-  constructor(path: string = "./", async: boolean = false) {
-    this.path = path;
-    this.async = async;
+  constructor(opt: EasyPathOpt = { path: "./", async: false }) {
+    this.path = opt.path;
+    this.async = !!opt.async;
     this.queue = [];
     return this;
   }

@@ -28,7 +28,7 @@ test({
     const e = new TextEncoder();
     Deno.writeFileSync(join(testRootPath, "foo.ts"), e.encode(""));
     Deno.writeFileSync(join(testRootPath, "bar.ts"), e.encode(""));
-    const ls = await new EasyPath(testRootPath).ls();
+    const ls = await new EasyPath({ path: testRootPath }).ls();
     assertEquals(ls, ["./test_data/bar.ts", "./test_data/foo.ts"]);
     await wipeTestEnv();
   }
@@ -38,7 +38,7 @@ test({
   name: "Exec",
   async fn(): Promise<void> {
     await setupTestEnv();
-    const e = new EasyPath(testRootPath)
+    const e = new EasyPath({ path: testRootPath })
       .join("subFolder")
       .mkdir()
       .join("foo.ts")
@@ -53,7 +53,7 @@ test({
   name: "Join",
   async fn(): Promise<void> {
     await setupTestEnv();
-    const d = new EasyPath(testRootPath)
+    const d = new EasyPath({ path: testRootPath })
       .join("sub1")
       .join("sub2")
       .join("sub3")
@@ -70,7 +70,7 @@ test({
   name: "Touch Sync",
   async fn(): Promise<void> {
     await setupTestEnv();
-    new EasyPath(testRootPath).join("foo.ts").touch();
+    new EasyPath({ path: testRootPath }).join("foo.ts").touch();
     assert(await exists(join(testRootPath, "foo.ts")));
     await wipeTestEnv();
   }
@@ -80,7 +80,9 @@ test({
   name: "Touch Async",
   async fn(): Promise<void> {
     await setupTestEnv();
-    const d = new EasyPath(testRootPath, true).join("foo.ts").touch();
+    const d = new EasyPath({ path: testRootPath, async: true })
+      .join("foo.ts")
+      .touch();
     await d.exec();
     assert(await exists(join(testRootPath, "foo.ts")));
     await wipeTestEnv();
@@ -91,7 +93,7 @@ test({
   name: "MkDir Sync",
   async fn(): Promise<void> {
     await setupTestEnv();
-    await new EasyPath(testRootPath).join("subdir").mkdir();
+    await new EasyPath({ path: testRootPath }).join("subdir").mkdir();
     assert(await exists(join(testRootPath, "subdir")));
     await wipeTestEnv();
   }
@@ -101,7 +103,9 @@ test({
   name: "MkDir Async",
   async fn(): Promise<void> {
     await setupTestEnv();
-    const d = await new EasyPath(testRootPath, true).join("subdir").mkdir();
+    const d = await new EasyPath({ path: testRootPath, async: true })
+      .join("subdir")
+      .mkdir();
     await d.exec();
     assert(await exists(join(testRootPath, "subdir")));
     await wipeTestEnv();
@@ -115,22 +119,22 @@ if (isNotWindows) {
       await setupTestEnv();
       const e = new TextEncoder();
       Deno.writeFileSync(join(testRootPath, "foo.ts"), e.encode(""));
-      await new EasyPath(testRootPath).join("foo.ts").chmod(0o755);
+      await new EasyPath({ path: testRootPath }).join("foo.ts").chmod(0o755);
       const fileInfo = Deno.statSync(
-        new EasyPath(testRootPath).join("foo.ts").toString()
+        new EasyPath({ path: testRootPath }).join("foo.ts").toString()
       );
       assertEquals(fileInfo.mode & 0o755, 0o755);
-      await new EasyPath(testRootPath).join("foo.ts").chmod(0o644);
+      await new EasyPath({ path: testRootPath }).join("foo.ts").chmod(0o644);
       if (isNotWindows) {
         const fileInfo = Deno.statSync(
-          new EasyPath(testRootPath).join("foo.ts").toString()
+          new EasyPath({ path: testRootPath }).join("foo.ts").toString()
         );
         assertEquals(fileInfo.mode & 0o644, 0o644);
       }
-      await new EasyPath(testRootPath).join("foo.ts").chmod(0o666);
+      await new EasyPath({ path: testRootPath }).join("foo.ts").chmod(0o666);
       if (isNotWindows) {
         const fileInfo = Deno.statSync(
-          new EasyPath(testRootPath).join("foo.ts").toString()
+          new EasyPath({ path: testRootPath }).join("foo.ts").toString()
         );
         assertEquals(fileInfo.mode & 0o666, 0o666);
       }
