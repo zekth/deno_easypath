@@ -114,6 +114,22 @@ test({
   }
 });
 
+test({
+  name: "Proxy properties",
+  async fn(): Promise<void> {
+    const actual = EasyPath.root.is.where.the.tree.iz.toString();
+    const expected = join("/", "is", "where", "the", "tree", "iz");
+    assertEquals(actual, expected);
+    const actual1 = EasyPath.home.sweet.home.toString();
+    const expected1 = join("~", "sweet", "home");
+    assertEquals(actual1, expected1);
+    const e: any = new EasyPath();
+    const actual2 = e.somewhere.far.away.toString();
+    const expected2 = join("./", "somewhere", "far", "away");
+    assertEquals(actual2, expected2);
+  }
+});
+
 if (isNotWindows) {
   test({
     name: "chmod",

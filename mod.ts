@@ -1,9 +1,10 @@
 import { join } from "https://deno.land/std/fs/path/mod.ts";
 import { walk } from "https://deno.land/std/fs/walk.ts";
+import { existsSync } from "https://deno.land/std/fs/exists.ts";
 
 export interface CopyOption {
-  to?: string;
-  into?: string;
+  to?: EasyPath | string;
+  into?: EasyPath | string;
 }
 
 export interface EasyPathOpt {
@@ -24,47 +25,85 @@ export interface Op {
   args?: Record<string, any>;
 }
 
+const handler = {
+  get: function(obj, prop, receiver) {
+    if (!obj[prop]) {
+      return obj.join(prop);
+    }
+    return Reflect.get(obj, prop, receiver);
+  }
+};
+
+function returnProxy(e: EasyPath) {
+  return new Proxy(e, handler);
+}
+
 export class EasyPath {
   private path: string;
   private queue: Array<Op>;
   private encoder: TextEncoder = new TextEncoder();
 
-  static home = new EasyPath("~");
-  static root = new EasyPath("/");
+  static home: any = new EasyPath("~");
+  static root: any = new EasyPath("/");
 
   constructor(path: string = "./") {
     this.path = path;
     this.queue = [];
-    return this;
+    return returnProxy(this);
   }
 
   public toString(): string {
     return this.path;
   }
 
+  public hasQueue(): boolean {
+    return this.queue.length > 0;
+  }
+
+  get isFile() {
+    if (existsSync(this.path)) {
+      return Deno.statSync(this.path).isFile();
+    }
+    return false;
+  }
+
+  get isDirectory() {
+    if (existsSync(this.path)) {
+      return Deno.statSync(this.path).isDirectory();
+    }
+    return false;
+  }
+
+  get isSymlink() {
+    if (existsSync(this.path)) {
+      return Deno.statSync(this.path).isSymlink();
+    }
+    return false;
+  }
+
   mkdir(): EasyPath {
     this.queue.push({ name: ops.mkdir, path: this.path });
-    return this;
+    return returnProxy(this);
   }
 
   join(path: string): EasyPath {
     this.path = join(this.path, path);
-    return this;
+    return returnProxy(this);
   }
 
   copy(opt: CopyOption): EasyPath {
     this.queue.push({ name: ops.copy, path: this.path });
-    return this;
+    return returnProxy(this);
   }
 
   touch(): EasyPath {
     this.queue.push({ name: ops.touch, path: this.path });
-    return this;
+    return returnProxy(this);
   }
 
   chmod(mode: number): EasyPath {
     this.queue.push({ name: ops.chmod, path: this.path, args: { mode: mode } });
-    return this;
+    return returnProxy(this);
   }
 
   async ls(): Promise<string[]> {
