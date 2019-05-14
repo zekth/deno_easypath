@@ -53,7 +53,7 @@ test({
   name: "Join",
   async fn(): Promise<void> {
     await setupTestEnv();
-    const d = await new EasyPath(testRootPath)
+    const d = new EasyPath(testRootPath)
       .join("sub1")
       .join("sub2")
       .join("sub3")
@@ -67,20 +67,42 @@ test({
 });
 
 test({
-  name: "Touch",
+  name: "Touch Sync",
   async fn(): Promise<void> {
     await setupTestEnv();
-    await new EasyPath(testRootPath).join("foo.ts").touch();
+    new EasyPath(testRootPath).join("foo.ts").touch();
     assert(await exists(join(testRootPath, "foo.ts")));
     await wipeTestEnv();
   }
 });
 
 test({
-  name: "MkDir",
+  name: "Touch Async",
+  async fn(): Promise<void> {
+    await setupTestEnv();
+    const d = new EasyPath(testRootPath, true).join("foo.ts").touch();
+    await d.exec();
+    assert(await exists(join(testRootPath, "foo.ts")));
+    await wipeTestEnv();
+  }
+});
+
+test({
+  name: "MkDir Sync",
   async fn(): Promise<void> {
     await setupTestEnv();
     await new EasyPath(testRootPath).join("subdir").mkdir();
+    assert(await exists(join(testRootPath, "subdir")));
+    await wipeTestEnv();
+  }
+});
+
+test({
+  name: "MkDir Async",
+  async fn(): Promise<void> {
+    await setupTestEnv();
+    const d = await new EasyPath(testRootPath, true).join("subdir").mkdir();
+    await d.exec();
     assert(await exists(join(testRootPath, "subdir")));
     await wipeTestEnv();
   }
