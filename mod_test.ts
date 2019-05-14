@@ -123,6 +123,7 @@ test({
     const actual1 = EasyPath.home.sweet.home.toString();
     const expected1 = join("~", "sweet", "home");
     assertEquals(actual1, expected1);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const e: any = new EasyPath();
     const actual2 = e.somewhere.far.away.toString();
     const expected2 = join("./", "somewhere", "far", "away");

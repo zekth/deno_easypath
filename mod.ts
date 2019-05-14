@@ -22,11 +22,13 @@ enum ops {
 export interface Op {
   name: ops;
   path: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args?: Record<string, any>;
 }
 
 const handler = {
-  get: function(obj, prop, receiver) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get: function(obj, prop, receiver): any {
     if (!obj[prop]) {
       return obj.join(prop);
     }
@@ -34,16 +36,18 @@ const handler = {
   }
 };
 
-function returnProxy(e: EasyPath) {
+function returnProxy(e: EasyPath): EasyPath {
   return new Proxy(e, handler);
 }
 
 export class EasyPath {
   private path: string;
-  private queue: Array<Op>;
+  private queue: Op[];
   private encoder: TextEncoder = new TextEncoder();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static home: any = new EasyPath("~");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static root: any = new EasyPath("/");
 
   constructor(path: string = "./") {
@@ -60,25 +64,30 @@ export class EasyPath {
     return this.queue.length > 0;
   }
 
-  get isFile() {
+  get isFile(): boolean {
     if (existsSync(this.path)) {
       return Deno.statSync(this.path).isFile();
     }
     return false;
   }
 
-  get isDirectory() {
+  get isDirectory(): boolean {
     if (existsSync(this.path)) {
       return Deno.statSync(this.path).isDirectory();
     }
     return false;
   }
 
-  get isSymlink() {
+  get isSymlink(): boolean {
     if (existsSync(this.path)) {
       return Deno.statSync(this.path).isSymlink();
     }
     return false;
+  }
+
+  cwd(path: string): EasyPath {
+    this.path = path;
+    return returnProxy(this);
   }
 
   mkdir(): EasyPath {
@@ -91,7 +100,7 @@ export class EasyPath {
     return returnProxy(this);
   }
 
-  copy(opt: CopyOption): EasyPath {
+  copy(_: CopyOption): EasyPath {
     this.queue.push({ name: ops.copy, path: this.path });
     return returnProxy(this);
   }

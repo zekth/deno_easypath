@@ -32,4 +32,8 @@ const e = new EasyPath()
   .join("foo.ts")
   .touch();
 await e.exec(); // create ./subFolder/bar.ts Asynchronously
+
+// Dynamic getters
+EasyPath.home.foo.bar.bur.bor.toString();
+// output ~\foo\bar\bur\bor
 ```
