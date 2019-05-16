@@ -1,15 +1,13 @@
-import { join } from "https://deno.land/std/fs/path/mod.ts";
-import { unimplemented } from "https://deno.land/std/testing/asserts.ts";
+import { join, dirname, basename } from "https://deno.land/std/fs/path/mod.ts";
 import { existsSync } from "https://deno.land/std/fs/exists.ts";
+import { copy, copySync } from "https://deno.land/std/fs/copy.ts";
+import { unreachable } from "https://deno.land/std/testing/asserts.ts";
+
+const encoder = new TextEncoder();
 
 export interface CopyOption {
   to?: EasyPath | string;
   into?: EasyPath | string;
-}
-
-export interface EasyPathOpt {
-  path: string;
-  async?: boolean;
 }
 
 enum ops {
@@ -19,7 +17,7 @@ enum ops {
   chmod
 }
 
-export interface Op {
+interface Op {
   name: ops;
   path: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,15 +46,14 @@ function returnProxy(e: EasyPath): EasyPath {
   return new Proxy(e, handler);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function path(path: string = "./"): any {
+  return new EasyPath(path);
+}
+
 export class EasyPath {
   private path: string;
   private queue: Op[] = [];
-  private encoder: TextEncoder = new TextEncoder();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static home: any = new EasyPath("~");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static root: any = new EasyPath("/");
 
   constructor(path: string = "./") {
     this.path = path;
@@ -107,9 +104,15 @@ export class EasyPath {
     return returnProxy(this);
   }
 
-  copy(_: CopyOption): EasyPath {
-    unimplemented();
-    this.queue.push({ name: ops.copy, path: this.path });
+  copy(c: CopyOption): EasyPath {
+    if (!c.to && !c.into) {
+      throw "You need to specify to or into argument";
+    }
+    this.queue.push({
+      name: ops.copy,
+      path: this.path,
+      args: { into: c.into, to: c.to }
+    });
     return returnProxy(this);
   }
 
@@ -119,7 +122,7 @@ export class EasyPath {
   }
 
   chmod(mode: number): EasyPath {
-    this.queue.push({ name: ops.chmod, path: this.path, args: { mode: mode } });
+    this.queue.push({ name: ops.chmod, path: this.path, args: { mode } });
     return returnProxy(this);
   }
 
@@ -133,8 +136,10 @@ export class EasyPath {
       }
       return comparison;
     }
+
     const arr = Deno.readDirSync(this.path);
     const out = [];
+
     for (const f of arr) {
       let ext;
       let o: LsRes = {
@@ -151,11 +156,48 @@ export class EasyPath {
       out.push(o);
     }
     out.sort(compare);
+
     return out;
   }
 
+  private copyArgs(
+    args: Record<string, string | EasyPath>
+  ): Record<string, string> {
+    let from, to;
+    if (args.into) {
+      if (args.into instanceof EasyPath) {
+        if (args.into.hasQueue()) {
+          args.into.execSync();
+        }
+        const into = args.into.toString();
+        const f = Deno.lstatSync(into);
+        let dir = args.into.toString();
+        if (f.isFile()) {
+          dir = dirname(dir);
+        }
+        to = join(dir, basename(this.path));
+      } else {
+        to = join(dirname(args.into), basename(this.path));
+      }
+    } else if (args.to) {
+      if (args.to instanceof EasyPath) {
+        if (args.to.hasQueue()) {
+          args.to.execSync();
+        }
+        to = args.to.toString();
+      } else {
+        to = args.to;
+      }
+    } else {
+      unreachable();
+    }
+    from = this.path;
+    return { from, to };
+  }
+
   execSync(): void {
-    for (const o of this.queue) {
+    for (const entry of this.queue) {
+      const o = entry as Op;
       switch (o.name) {
         case ops.chmod:
           Deno.chmodSync(o.path, o.args.mode);
@@ -164,9 +206,11 @@ export class EasyPath {
           Deno.mkdirSync(o.path, true);
           break;
         case ops.copy:
+          let { from, to } = this.copyArgs(o.args);
+          copySync(from, to);
           break;
         case ops.touch:
-          Deno.writeFileSync(o.path, this.encoder.encode(""));
+          Deno.writeFileSync(o.path, encoder.encode(""));
           break;
       }
     }
@@ -184,9 +228,11 @@ export class EasyPath {
           p = Deno.mkdir(o.path, true);
           break;
         case ops.copy:
+          let { from, to } = this.copyArgs(o.args);
+          p = copy(from, to);
           break;
         case ops.touch:
-          p = Deno.writeFile(o.path, this.encoder.encode(""));
+          p = Deno.writeFile(o.path, encoder.encode(""));
           break;
       }
       await p;

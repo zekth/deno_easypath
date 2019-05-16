@@ -3,30 +3,32 @@
 ## Usage
 
 ```ts
-import { EasyPath } from "./mod.ts";
+import { path } from "./mod.ts";
 
-new EasyPath()
+path()
   .join("foo")
   .join("bar.ts")
   .toString(); // output foo/bar.ts
 
-new EasyPath()
+path()
   .join("bar.ts")
   .touch()
   .execSync(); // create ./bar.ts Synchronously
 
-const e = new EasyPath().join("bar.ts").touch();
+const e = path()
+  .join("bar.ts")
+  .touch();
 await e.exec(); // create ./bar.ts Asynchronously
 
 // you can also chain actions
-new EasyPath()
+path()
   .join("subFolder")
   .mkdir()
   .join("foo.ts")
   .touch()
   .execSync(); // create ./subFolder/bar.ts Synchronously
 
-const e = new EasyPath()
+const e = path()
   .join("subFolder")
   .mkdir()
   .join("foo.ts")
@@ -36,9 +38,33 @@ await e.exec(); // create ./subFolder/bar.ts Asynchronously
 // Dynamic getters
 EasyPath.home.foo.bar.bur.bor.toString();
 // output ~\foo\bar\bur\bor
+
+path()
+  .join("foo.ts")
+  .copy({ to: path(testRootPath).join("bar.ts") })
+  .execSync();
+// Will copy ./foo.ts to ./bar.ts
+
+path()
+  .join("foo.ts")
+  .copy({ into: path(testRootPath).join("sub") })
+  .execSync();
+// Will copy ./foo.ts to ./sub/bar.ts
+
+// copy accept also EasyPath chains.
+path(testRootPath)
+  .join("foo.ts")
+  .copy({
+    into: path(testRootPath)
+      .join("sub")
+      .mkdir()
+  })
+  .execSync();
+// Will copy ./foo.ts to ./sub/bar.ts
+// Note chains in the copy args are executed synchronously
 ```
 
 ## TODO
 
-- ADD copy: Waiting for https://github.com/denoland/deno_std/pull/278 to land
 - Add symlink resolution
+- Improve doc
