@@ -29,7 +29,7 @@ test({
     Deno.writeFileSync(join(testRootPath, "foo.ts"), e.encode(""));
     Deno.writeFileSync(join(testRootPath, "bar.ts"), e.encode(""));
     const ls = await new EasyPath(testRootPath).ls();
-    assertEquals(ls, ["./test_data/bar.ts", "./test_data/foo.ts"]);
+    assertEquals(ls, ["test_data/bar.ts", "test_data/foo.ts"]);
     await wipeTestEnv();
   }
 });

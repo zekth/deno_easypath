@@ -119,7 +119,7 @@ export class EasyPath {
   async ls(): Promise<string[]> {
     const arr = [];
     for await (const f of walk(this.path)) {
-      arr.push(f.path.replace(/\\/g, "/"));
+      arr.push(f.filename.replace(/\\/g, "/"));
     }
     arr.sort();
     return arr;
