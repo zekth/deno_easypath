@@ -46,11 +46,6 @@ function returnProxy(e: EasyPath): EasyPath {
   return new Proxy(e, handler);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function path(path: string = "./"): any {
-  return new EasyPath(path);
-}
-
 export class EasyPath {
   private path: string;
   private queue: Op[] = [];
@@ -239,4 +234,9 @@ export class EasyPath {
     }
     this.queue = [];
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function path(path: string = "./"): any {
+  return new EasyPath(path);
 }

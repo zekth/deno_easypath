@@ -3,7 +3,7 @@ import { assertEquals, assert } from "https://deno.land/std/testing/asserts.ts";
 import { exists } from "https://deno.land/std/fs/exists.ts";
 import { join } from "https://deno.land/std/fs/path/mod.ts";
 
-import { EasyPath, path } from "./mod.ts";
+import { path } from "./mod.ts";
 
 const testRootPath = "./test_data";
 const isNotWindows = Deno.build.os !== "win";

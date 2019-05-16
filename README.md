@@ -1,14 +1,16 @@
 # Deno_easyPath [![Build Status](https://travis-ci.org/zekth/deno_easypath.svg?branch=master)](https://travis-ci.org/zekth/deno_easypath)
 
+Path wrapper to manipulate Filesystem using [Deno](https://github.com/denoland/deno). Mostly inspired by [Path.swift](https://github.com/mxcl/Path.swift)
+
 ## Usage
 
 ```ts
 import { path } from "./mod.ts";
 
-path()
+path("/")
   .join("foo")
   .join("bar.ts")
-  .toString(); // output foo/bar.ts
+  .toString(); // output /foo/bar.ts
 
 path()
   .join("bar.ts")
