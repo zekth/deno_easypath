@@ -1,5 +1,6 @@
 import { join } from "https://deno.land/std/fs/path/mod.ts";
 import { walk } from "https://deno.land/std/fs/walk.ts";
+import { unimplemented } from "https://deno.land/std/testing/asserts.ts";
 import { existsSync } from "https://deno.land/std/fs/exists.ts";
 
 export interface CopyOption {
@@ -42,7 +43,7 @@ function returnProxy(e: EasyPath): EasyPath {
 
 export class EasyPath {
   private path: string;
-  private queue: Op[];
+  private queue: Op[] = [];
   private encoder: TextEncoder = new TextEncoder();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,7 +53,6 @@ export class EasyPath {
 
   constructor(path: string = "./") {
     this.path = path;
-    this.queue = [];
     return returnProxy(this);
   }
 
@@ -60,25 +60,25 @@ export class EasyPath {
     return this.path;
   }
 
-  public hasQueue(): boolean {
+  hasQueue(): boolean {
     return this.queue.length > 0;
   }
 
-  get isFile(): boolean {
+  isFile(): boolean {
     if (existsSync(this.path)) {
       return Deno.statSync(this.path).isFile();
     }
     return false;
   }
 
-  get isDirectory(): boolean {
+  isDirectory(): boolean {
     if (existsSync(this.path)) {
       return Deno.statSync(this.path).isDirectory();
     }
     return false;
   }
 
-  get isSymlink(): boolean {
+  isSymlink(): boolean {
     if (existsSync(this.path)) {
       return Deno.statSync(this.path).isSymlink();
     }
@@ -101,6 +101,7 @@ export class EasyPath {
   }
 
   copy(_: CopyOption): EasyPath {
+    unimplemented();
     this.queue.push({ name: ops.copy, path: this.path });
     return returnProxy(this);
   }

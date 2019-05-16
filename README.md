@@ -37,3 +37,8 @@ await e.exec(); // create ./subFolder/bar.ts Asynchronously
 EasyPath.home.foo.bar.bur.bor.toString();
 // output ~\foo\bar\bur\bor
 ```
+
+## TODO
+
+- ADD copy: Waiting for https://github.com/denoland/deno_std/pull/278 to land
+- LS function should be improved

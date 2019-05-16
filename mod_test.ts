@@ -131,6 +131,34 @@ test({
   }
 });
 
+test({
+  name: "isDirectory()",
+  async fn(): Promise<void> {
+    await setupTestEnv();
+    const d = new EasyPath(testRootPath).isDirectory();
+    assert(d);
+    const d2 = new EasyPath().join("mod.ts").isDirectory();
+    assertEquals(d2, false);
+    const d3 = new EasyPath().join("dOzNotEXiZt").isDirectory();
+    assertEquals(d3, false);
+    await wipeTestEnv();
+  }
+});
+
+test({
+  name: "isFile()",
+  async fn(): Promise<void> {
+    await setupTestEnv();
+    const d = new EasyPath(testRootPath).isFile();
+    assertEquals(d, false);
+    const d2 = new EasyPath().join("mod.ts").isFile();
+    assertEquals(d2, true);
+    const d3 = new EasyPath().join("dOzNotEXiZt").isFile();
+    assertEquals(d3, false);
+    await wipeTestEnv();
+  }
+});
+
 if (isNotWindows) {
   test({
     name: "chmod",
