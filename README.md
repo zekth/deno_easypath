@@ -41,4 +41,4 @@ EasyPath.home.foo.bar.bur.bor.toString();
 ## TODO
 
 - ADD copy: Waiting for https://github.com/denoland/deno_std/pull/278 to land
-- LS function should be improved
+- Add symlink resolution

@@ -28,8 +28,30 @@ test({
     const e = new TextEncoder();
     Deno.writeFileSync(join(testRootPath, "foo.ts"), e.encode(""));
     Deno.writeFileSync(join(testRootPath, "bar.ts"), e.encode(""));
+    Deno.mkdirSync(join(testRootPath, "folder"));
     const ls = await new EasyPath(testRootPath).ls();
-    assertEquals(ls, ["test_data/bar.ts", "test_data/foo.ts"]);
+    assertEquals(ls, [
+      {
+        isDirectory: false,
+        isFile: true,
+        isSymlink: false,
+        name: "bar.ts",
+        extension: "ts"
+      },
+      {
+        isDirectory: true,
+        isFile: false,
+        isSymlink: false,
+        name: "folder"
+      },
+      {
+        isDirectory: false,
+        isFile: true,
+        isSymlink: false,
+        name: "foo.ts",
+        extension: "ts"
+      }
+    ]);
     await wipeTestEnv();
   }
 });

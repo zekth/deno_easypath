@@ -1,5 +1,4 @@
 import { join } from "https://deno.land/std/fs/path/mod.ts";
-import { walk } from "https://deno.land/std/fs/walk.ts";
 import { unimplemented } from "https://deno.land/std/testing/asserts.ts";
 import { existsSync } from "https://deno.land/std/fs/exists.ts";
 
@@ -25,6 +24,14 @@ export interface Op {
   path: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args?: Record<string, any>;
+}
+
+export interface LsRes {
+  name: string;
+  extension?: string;
+  isDirectory: boolean;
+  isFile: boolean;
+  isSymlink: boolean;
 }
 
 const handler = {
@@ -116,13 +123,26 @@ export class EasyPath {
     return returnProxy(this);
   }
 
-  async ls(): Promise<string[]> {
-    const arr = [];
-    for await (const f of walk(this.path)) {
-      arr.push(f.filename.replace(/\\/g, "/"));
+  ls(): LsRes[] {
+    const arr = Deno.readDirSync(this.path);
+    const out = [];
+    for (const f of arr) {
+      let ext;
+      let o: LsRes = {
+        name: f.name,
+        isDirectory: f.isDirectory(),
+        isFile: f.isFile(),
+        isSymlink: f.isSymlink()
+      };
+      if (f.isFile()) {
+        const s = f.name.split(".");
+        ext = s[s.length - 1];
+        o.extension = ext;
+      }
+      out.push(o);
     }
-    arr.sort();
-    return arr;
+    out.sort();
+    return out;
   }
 
   execSync(): void {
