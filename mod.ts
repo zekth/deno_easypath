@@ -124,6 +124,15 @@ export class EasyPath {
   }
 
   ls(): LsRes[] {
+    function compare(a: LsRes, b: LsRes): number {
+      let comparison = 0;
+      if (a.name > b.name) {
+        comparison = 1;
+      } else if (a.name < b.name) {
+        comparison = -1;
+      }
+      return comparison;
+    }
     const arr = Deno.readDirSync(this.path);
     const out = [];
     for (const f of arr) {
@@ -141,6 +150,7 @@ export class EasyPath {
       }
       out.push(o);
     }
+    out.sort(compare);
     return out;
   }
 
