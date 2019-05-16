@@ -141,7 +141,6 @@ export class EasyPath {
       }
       out.push(o);
     }
-    out.sort();
     return out;
   }
 
