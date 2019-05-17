@@ -222,7 +222,6 @@ test({
     const e = new TextEncoder();
 
     Deno.writeFileSync(join(testRootPath, "foo.ts"), e.encode(""));
-    Deno.mkdirSync(join(testRootPath, "sub"));
     path(testRootPath)
       .join("foo.ts")
       .copy({

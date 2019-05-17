@@ -48,7 +48,7 @@ function returnProxy(e: EasyPath): EasyPath {
 
 export class EasyPath {
   private path: string;
-  private queue: Op[] = [];
+  queue: Op[] = [];
 
   constructor(path: string = "./") {
     this.path = path;
@@ -103,10 +103,11 @@ export class EasyPath {
     if (!c.to && !c.into) {
       throw "You need to specify to or into argument";
     }
+    const { from, to } = this.copyArgs(c);
     this.queue.push({
       name: ops.copy,
       path: this.path,
-      args: { into: c.into, to: c.to }
+      args: { from, to }
     });
     return returnProxy(this);
   }
@@ -155,21 +156,14 @@ export class EasyPath {
     return out;
   }
 
-  private copyArgs(
-    args: Record<string, string | EasyPath>
-  ): Record<string, string> {
+  private copyArgs(args: CopyOption): Record<string, string> {
     let from, to;
     if (args.into) {
       if (args.into instanceof EasyPath) {
         if (args.into.hasQueue()) {
-          args.into.execSync();
+          this.queue.push(...args.into.queue);
         }
-        const into = args.into.toString();
-        const f = Deno.lstatSync(into);
         let dir = args.into.toString();
-        if (f.isFile()) {
-          dir = dirname(dir);
-        }
         to = join(dir, basename(this.path));
       } else {
         to = join(dirname(args.into), basename(this.path));
@@ -177,7 +171,7 @@ export class EasyPath {
     } else if (args.to) {
       if (args.to instanceof EasyPath) {
         if (args.to.hasQueue()) {
-          args.to.execSync();
+          this.queue.push(...args.to.queue);
         }
         to = args.to.toString();
       } else {
@@ -201,8 +195,8 @@ export class EasyPath {
           Deno.mkdirSync(o.path, true);
           break;
         case ops.copy:
-          let { from, to } = this.copyArgs(o.args);
-          copySync(from, to);
+          // let { from, to } = this.copyArgs(o.args);
+          copySync(o.args.from, o.args.to);
           break;
         case ops.touch:
           Deno.writeFileSync(o.path, encoder.encode(""));
@@ -223,8 +217,8 @@ export class EasyPath {
           p = Deno.mkdir(o.path, true);
           break;
         case ops.copy:
-          let { from, to } = this.copyArgs(o.args);
-          p = copy(from, to);
+          // let { from, to } = this.copyArgs(o.args);
+          p = copy(o.args.from, o.args.to);
           break;
         case ops.touch:
           p = Deno.writeFile(o.path, encoder.encode(""));
