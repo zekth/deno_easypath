@@ -195,7 +195,6 @@ export class EasyPath {
           Deno.mkdirSync(o.path, true);
           break;
         case ops.copy:
-          // let { from, to } = this.copyArgs(o.args);
           copySync(o.args.from, o.args.to);
           break;
         case ops.touch:
@@ -217,7 +216,6 @@ export class EasyPath {
           p = Deno.mkdir(o.path, true);
           break;
         case ops.copy:
-          // let { from, to } = this.copyArgs(o.args);
           p = copy(o.args.from, o.args.to);
           break;
         case ops.touch:
