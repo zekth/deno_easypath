@@ -29,7 +29,6 @@ Those statuses only work on a path without action in the chain. If so, you have 
 - **isDirectory(): boolean**: Returns a boolean if the path of the chain is a Directory.
 - **isSymlink(): boolean**: Returns a boolean if the path of the chain is a Symlink.
 
-
 ### Usage
 
 ```ts
