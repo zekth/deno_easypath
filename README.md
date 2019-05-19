@@ -4,7 +4,7 @@ Path wrapper to manipulate Filesystem using [Deno](https://github.com/denoland/d
 
 ## Concept
 
-EasyPath give you the possibility to manipulate the FileSystem of Deno using chains of actions. After the declaration you can execute all the actions synchronously or asynchronously. Also you can have nested chains, see `copy` example.
+easyPath give you the possibility to manipulate the FileSystem of Deno using chains of actions. After the declaration you can execute all the actions synchronously or asynchronously. Also you can have nested chains, see `copy` example.
 
 ## API
 
@@ -23,7 +23,7 @@ EasyPath give you the possibility to manipulate the FileSystem of Deno using cha
 
 #### Copy
 
-Copy will copy the current path `to` or `into` the passed option. `to` or `into` can either be a path string or an easypath instance. Also this instance has not to have its chain executed, it will be executed with the main easypath instance. See example below:
+Copy will copy the current path `to` or `into` the passed option. `to` or `into` can either be a path string or an easyPath instance. Also this instance has not to have its chain executed, it will be executed with the main easyPath instance. See example below:
 
 ```ts
 path()
@@ -75,6 +75,14 @@ Those statuses only work on a path without action in the chain. If so, you have 
 - **`isDirectory(): boolean`**: Returns a boolean if the path of the chain is a Directory.
 - **`isSymlink(): boolean`**: Returns a boolean if the path of the chain is a Symlink.
 
+### Dynamic getters
+
+easyPath uses [Javascript Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) to have possibility to write syntax like this:
+```ts
+path('~').foo.bar.bur.bor.toString();
+// output ~\foo\bar\bur\bor
+```
+
 ### Examples
 
 ```ts
@@ -109,10 +117,6 @@ const e = path()
   .join("foo.ts")
   .touch();
 await e.exec(); // create ./subFolder/bar.ts Asynchronously
-
-// Dynamic getters
-EasyPath.home.foo.bar.bur.bor.toString();
-// output ~\foo\bar\bur\bor
 
 path()
   .join("foo.ts")
