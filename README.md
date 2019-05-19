@@ -86,7 +86,7 @@ path('~').foo.bar.bur.bor.toString();
 ### Examples
 
 ```ts
-import { path } from "./mod.ts";
+import { path } from "https://deno.land/x/easypath/mod.ts";
 
 path("/")
   .join("foo")
