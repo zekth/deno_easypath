@@ -1,7 +1,11 @@
-import { join, dirname, basename } from "https://deno.land/std/fs/path/mod.ts";
-import { existsSync } from "https://deno.land/std/fs/exists.ts";
-import { copy, copySync } from "https://deno.land/std/fs/copy.ts";
-import { unreachable } from "https://deno.land/std/testing/asserts.ts";
+import {
+  join,
+  dirname,
+  basename
+} from "https://deno.land/std@v0.6/fs/path/mod.ts";
+import { existsSync } from "https://deno.land/std@v0.6/fs/exists.ts";
+import { copy, copySync } from "https://deno.land/std@v0.6/fs/copy.ts";
+import { unreachable } from "https://deno.land/std@v0.6/testing/asserts.ts";
 
 const encoder = new TextEncoder();
 

@@ -1,7 +1,10 @@
-import { test, runIfMain } from "https://deno.land/std/testing/mod.ts";
-import { assertEquals, assert } from "https://deno.land/std/testing/asserts.ts";
-import { exists } from "https://deno.land/std/fs/exists.ts";
-import { join } from "https://deno.land/std/fs/path/mod.ts";
+import { test, runIfMain } from "https://deno.land/std@v0.6/testing/mod.ts";
+import {
+  assertEquals,
+  assert
+} from "https://deno.land/std@v0.6/testing/asserts.ts";
+import { exists } from "https://deno.land/std@v0.6/fs/exists.ts";
+import { join } from "https://deno.land/std@v0.6/fs/path/mod.ts";
 
 import { path } from "./mod.ts";
 
