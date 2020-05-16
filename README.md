@@ -60,7 +60,7 @@ path()
 path()
   .join("foo.ts")
   .copy({
-    into: path()
+    to: path()
       .join("sub")
       .join("bar.ts")
   });
