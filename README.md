@@ -17,8 +17,8 @@ easyPath give you the possibility to manipulate the FileSystem of Deno using cha
 - **`copy(c: CopyOption): void`**: See [copy](#Copy) section
 - **`cwd(path: string): void`**: Set the current working directory. Rewrite the path of the `path()` instance.
 - **`chmod(mode: number): void`**: Chmod on the path (only Unix supported).
-- **`exec(): void`**: Executes the chain synchronously.
-- **`execSync(): Promise<void>`**: Executes the chain asynchronously.
+- **`exec(): Promise<void>`**: Executes the chain asynchronously.
+- **`execSync(): void`**: Executes the chain synchronously.
 - **`ls(): LsRes[]`**: Returns the list of the files and directories of the current path.
 
 #### Copy
