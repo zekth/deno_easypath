@@ -1,0 +1,19 @@
+name: Database Build
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: denolib/setup-deno@master
+        with:
+          deno-version: v1.x
+      - name: lint
+        run: deno fmt --check
+      - name: lint
+        run: deno test --allow-write --allow-read --unstable
