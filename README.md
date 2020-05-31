@@ -1,4 +1,4 @@
-# Deno easyPath [![Build Status](https://travis-ci.org/zekth/deno_easypath.svg?branch=master)](https://travis-ci.org/zekth/deno_easypath)
+# Deno easyPath ![Build](https://github.com/zekth/deno_easypath/workflows/Build/badge.svg)
 
 Path wrapper to manipulate Filesystem using [Deno](https://github.com/denoland/deno). Mostly inspired by [Path.swift](https://github.com/mxcl/Path.swift)
 
