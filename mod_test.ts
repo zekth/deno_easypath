@@ -1,15 +1,16 @@
-import { test, runIfMain } from "https://deno.land/std@v0.6/testing/mod.ts";
+// import { test, runIfMain } from "https://deno.land/std@v0.53.0/testing/mod.ts";
 import {
   assertEquals,
-  assert
-} from "https://deno.land/std@v0.6/testing/asserts.ts";
-import { exists } from "https://deno.land/std@v0.6/fs/exists.ts";
-import { join } from "https://deno.land/std@v0.6/fs/path/mod.ts";
+  assert,
+} from "https://deno.land/std@v0.53.0/testing/asserts.ts";
+import { exists } from "https://deno.land/std@v0.53.0/fs/exists.ts";
+import { join } from "https://deno.land/std@v0.53.0/path/mod.ts";
 
 import { path } from "./mod.ts";
+const { test } = Deno;
 
 const testRootPath = "./test_data";
-const isNotWindows = Deno.build.os !== "win";
+const isNotWindows = Deno.build.os !== "windows";
 
 async function setupTestEnv(): Promise<void> {
   if (!(await exists(testRootPath))) {
@@ -39,24 +40,24 @@ test({
         isFile: true,
         isSymlink: false,
         name: "bar.ts",
-        extension: "ts"
+        extension: "ts",
       },
       {
         isDirectory: true,
         isFile: false,
         isSymlink: false,
-        name: "folder"
+        name: "folder",
       },
       {
         isDirectory: false,
         isFile: true,
         isSymlink: false,
         name: "foo.ts",
-        extension: "ts"
-      }
+        extension: "ts",
+      },
     ]);
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -71,7 +72,7 @@ test({
     await e.exec();
     assert(await exists(join(testRootPath, "subFolder", "foo.ts")));
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -86,9 +87,9 @@ test({
       .join("sub5");
     assertEquals(
       d.toString(),
-      join(testRootPath, "sub1", "sub2", "sub3", "sub4", "sub5")
+      join(testRootPath, "sub1", "sub2", "sub3", "sub4", "sub5"),
     );
-  }
+  },
 });
 
 test({
@@ -101,7 +102,7 @@ test({
       .execSync();
     assert(await exists(join(testRootPath, "foo.ts")));
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -114,7 +115,7 @@ test({
     await d.exec();
     assert(await exists(join(testRootPath, "foo.ts")));
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -127,7 +128,7 @@ test({
       .execSync();
     assert(await exists(join(testRootPath, "subdir")));
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -140,7 +141,7 @@ test({
     await d.exec();
     assert(await exists(join(testRootPath, "subdir")));
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -155,7 +156,7 @@ test({
     const actual2 = path().somewhere.far.away.toString();
     const expected2 = join("./", "somewhere", "far", "away");
     assertEquals(actual2, expected2);
-  }
+  },
 });
 
 test({
@@ -173,7 +174,7 @@ test({
       .isDirectory();
     assertEquals(d3, false);
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -191,7 +192,7 @@ test({
       .isFile();
     assertEquals(d3, false);
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -215,7 +216,7 @@ test({
     assert(await exists(join(testRootPath, "sub", "foo.ts")));
 
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -230,13 +231,13 @@ test({
       .copy({
         into: path(testRootPath)
           .join("sub")
-          .mkdir()
+          .mkdir(),
       })
       .execSync();
     assert(await exists(join(testRootPath, "sub", "foo.ts")));
 
     await wipeTestEnv();
-  }
+  },
 });
 
 test({
@@ -260,7 +261,7 @@ test({
     assert(await exists(join(testRootPath, "sub", "foo.ts")));
 
     await wipeTestEnv();
-  }
+  },
 });
 
 if (isNotWindows) {
@@ -277,9 +278,9 @@ if (isNotWindows) {
       const fileInfo = Deno.statSync(
         path(testRootPath)
           .join("foo.ts")
-          .toString()
+          .toString(),
       );
-      assertEquals(fileInfo.mode & 0o755, 0o755);
+      assertEquals(fileInfo.mode! & 0o755, 0o755);
       await path(testRootPath)
         .join("foo.ts")
         .chmod(0o644)
@@ -288,9 +289,9 @@ if (isNotWindows) {
         const fileInfo = Deno.statSync(
           path(testRootPath)
             .join("foo.ts")
-            .toString()
+            .toString(),
         );
-        assertEquals(fileInfo.mode & 0o644, 0o644);
+        assertEquals(fileInfo.mode! & 0o644, 0o644);
       }
       await path(testRootPath)
         .join("foo.ts")
@@ -300,13 +301,13 @@ if (isNotWindows) {
         const fileInfo = Deno.statSync(
           path(testRootPath)
             .join("foo.ts")
-            .toString()
+            .toString(),
         );
-        assertEquals(fileInfo.mode & 0o666, 0o666);
+        assertEquals(fileInfo.mode! & 0o666, 0o666);
       }
       await wipeTestEnv();
-    }
+    },
   });
 }
 
-runIfMain(import.meta);
+// runIfMain(import.meta);

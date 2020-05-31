@@ -1,11 +1,11 @@
 import {
   join,
   dirname,
-  basename
-} from "https://deno.land/std@v0.6/fs/path/mod.ts";
-import { existsSync } from "https://deno.land/std@v0.6/fs/exists.ts";
-import { copy, copySync } from "https://deno.land/std@v0.6/fs/copy.ts";
-import { unreachable } from "https://deno.land/std@v0.6/testing/asserts.ts";
+  basename,
+} from "https://deno.land/std@v0.53.0/path/mod.ts";
+import { existsSync } from "https://deno.land/std@v0.53.0/fs/exists.ts";
+import { copy, copySync } from "https://deno.land/std@v0.53.0/fs/copy.ts";
+import { unreachable } from "https://deno.land/std@v0.53.0/testing/asserts.ts";
 
 const encoder = new TextEncoder();
 
@@ -18,7 +18,7 @@ enum ops {
   copy,
   mkdir,
   touch,
-  chmod
+  chmod,
 }
 
 interface Op {
@@ -38,12 +38,12 @@ export interface LsRes {
 
 const handler = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  get: function(obj, prop, receiver): any {
+  get: function (obj: any, prop: string, receiver: any): any {
     if (!obj[prop]) {
       return obj.join(prop);
     }
     return Reflect.get(obj, prop, receiver);
-  }
+  },
 };
 
 function returnProxy(e: EasyPath): EasyPath {
@@ -69,21 +69,21 @@ export class EasyPath {
 
   isFile(): boolean {
     if (existsSync(this.path)) {
-      return Deno.statSync(this.path).isFile();
+      return Deno.statSync(this.path).isFile;
     }
     return false;
   }
 
   isDirectory(): boolean {
     if (existsSync(this.path)) {
-      return Deno.statSync(this.path).isDirectory();
+      return Deno.statSync(this.path).isDirectory;
     }
     return false;
   }
 
   isSymlink(): boolean {
     if (existsSync(this.path)) {
-      return Deno.statSync(this.path).isSymlink();
+      return Deno.statSync(this.path).isSymlink;
     }
     return false;
   }
@@ -111,7 +111,7 @@ export class EasyPath {
     this.queue.push({
       name: ops.copy,
       path: this.path,
-      args: { from, to }
+      args: { from, to },
     });
     return returnProxy(this);
   }
@@ -144,11 +144,11 @@ export class EasyPath {
       let ext;
       let o: LsRes = {
         name: f.name,
-        isDirectory: f.isDirectory(),
-        isFile: f.isFile(),
-        isSymlink: f.isSymlink()
+        isDirectory: f.isDirectory,
+        isFile: f.isFile,
+        isSymlink: f.isSymlink,
       };
-      if (f.isFile()) {
+      if (f.isFile) {
         const s = f.name.split(".");
         ext = s[s.length - 1];
         o.extension = ext;
@@ -193,13 +193,13 @@ export class EasyPath {
       const o = entry as Op;
       switch (o.name) {
         case ops.chmod:
-          Deno.chmodSync(o.path, o.args.mode);
+          Deno.chmodSync(o.path, o.args!.mode);
           break;
         case ops.mkdir:
-          Deno.mkdirSync(o.path, true);
+          Deno.mkdirSync(o.path, { recursive: true });
           break;
         case ops.copy:
-          copySync(o.args.from, o.args.to);
+          copySync(o.args!.from, o.args!.to);
           break;
         case ops.touch:
           Deno.writeFileSync(o.path, encoder.encode(""));
@@ -214,13 +214,13 @@ export class EasyPath {
       let p;
       switch (o.name) {
         case ops.chmod:
-          p = Deno.chmod(o.path, o.args.mode);
+          p = Deno.chmod(o.path, o.args!.mode);
           break;
         case ops.mkdir:
-          p = Deno.mkdir(o.path, true);
+          p = Deno.mkdir(o.path, { recursive: true });
           break;
         case ops.copy:
-          p = copy(o.args.from, o.args.to);
+          p = copy(o.args!.from, o.args!.to);
           break;
         case ops.touch:
           p = Deno.writeFile(o.path, encoder.encode(""));
